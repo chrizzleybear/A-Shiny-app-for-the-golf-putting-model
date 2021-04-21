@@ -1,0 +1,69 @@
+# Shiny Project
+# 21.04.21
+# Christopher Stief
+# Data Simulation
+
+# Simulation of Binomial Data (Success per Tries for each Distance) based on 
+# the primary Data (from professional Golfers)
+
+# original data (don berrys textbook)
+realdata <- read.table(header = TRUE, text = "
+x n y
+2 1443 1346
+3 694 577
+4 455 337
+5 353 208
+6 272 149
+7 256 136
+8 240 111
+9 217 69
+10 200 67
+11 237 75
+12 202 52
+13 192 46
+14 174 54
+15 167 28
+16 201 27
+17 195 31
+18 191 33
+19 147 20
+20 152 24" )
+
+realdata <- as.data.frame(realdata)
+
+names(realdata) = c("distance", "tries", "success")
+
+
+# adding one column for probability
+realdata$prob <- realdata$success / realdata$tries
+
+head(realdata)
+
+# a data frame wich shows all the tries, successes and the resulting probability 
+# per distance
+distance <- c(seq(2,20,1))
+ 
+simulated_data <- data.frame(distance, tries = 1000, successes = NA, 
+                             probability = NA, row.names = NULL)
+
+# function for data simulation with probability and tries as variables
+data_sampler <- function(x, tries = 1000){
+  generated <- rbinom(n = tries, size = 1, prob = x)
+  success <- sum(generated)
+  return (success)
+}
+
+
+# generating random data for different successrates (at each distance)
+simulated_data$successes <- sapply(realdata$prob, FUN = data_sampler)
+
+
+simulated_data <- transform(simulated_data, probability = successes / tries)
+print(simulated_data, row.names = FALSE)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Simulation of Binomial Data based on the derived Gelman Model
+
+
+# ??? dont know how to do this
