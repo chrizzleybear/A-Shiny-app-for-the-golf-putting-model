@@ -15,6 +15,19 @@ nll <- function(sigma, ft, tries, hits)
   -sum(dbinom(x = hits, size = tries, prob = ggm(ft = ft, sigma = sigma),
        log = TRUE))
 
+# function for data simulation with probability and tries as variables
+data_sampler <- function(x){
+  generated <- rbinom(n = 1000, size = 1, prob = x)
+  success <- sum(generated)
+  return (success)
+}
+
+# a data frame wich shows all the tries, successes and the resulting probability 
+# per distance
+distance <- c(seq(2,20,1))
+
+simulated_data <- data.frame(distance, tries = 1000, successes = NA, 
+                             probability = NA, row.names = NULL)
 
 server <- function(input, output) {
 
@@ -27,6 +40,9 @@ server <- function(input, output) {
     }else if(input$current_tab == "Parameter Estimation"){
       return(NULL)
 
+    }else if(input$current_tab == "Data Simulation"){
+      sliderInput(inputId = "sigma1", label = "Choose a sigma", value = 0.026,
+                  min = 0.005, max = 0.35)
     }else if(input$current_tab == "Model comparison"){
       return(NULL)
 
@@ -129,6 +145,28 @@ server <- function(input, output) {
       head(collected$data, 50)
   })
 
+
+  
+  # tab Data Simulation on Sigma 
+  
+  
+  # output table based on sigma slider
+  output$table_simulated <- renderTable({
+    simulated_data$probability <- sapply(simulated_data$distance, 
+                                         FUN = ggm, sigma = input$sigma1)
+    simulated_data$successes <- sapply(simulated_data$probability, FUN = data_sampler)
+    return(simulated_data)
+  })
+  
+  # output plot based on sigma slider
+  output$plot_simulated <- renderPlot({
+    simulated_data$probability <- sapply(simulated_data$distance, 
+                                         FUN = ggm, sigma = input$sigma1)
+    simulated_data$successes <- sapply(simulated_data$probability, 
+                                       FUN = data_sampler)
+    plot(simulated_data$successes)
+    plot(simulated_data$successes)
+  })
 
 
 
